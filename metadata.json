@@ -1,0 +1,6 @@
+{
+  "name": "Tryout Uji Kompetensi Perawat D3",
+  "description": "Aplikasi Tryout Uji Kompetensi Perawat D3 berbasis CBT modern dengan fitur lengkap, bank soal CAT, statistik nilai, pembahasan detail, dan kisi-kisi materi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

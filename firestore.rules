@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety gate
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Map helper variables
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    // --- STRUCTURAL VALIDATORS (9 Pillars of Schema Validation for Custom Authenticated App) ---
+
+    function isValidUser(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 256
+        && data.email is string && data.email.size() <= 128
+        && data.role is string && (data.role == 'admin' || data.role == 'user')
+        && data.status is string && (data.status == 'active' || data.status == 'inactive')
+        && (!('password' in data) || (data.password is string && data.password.size() <= 256))
+        && data.createdAt is string;
+    }
+
+    function isValidQuestion(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.category is string && data.category.size() <= 128
+        && data.question is string && data.question.size() <= 10000
+        && data.optionA is string && data.optionA.size() <= 2000
+        && data.optionB is string && data.optionB.size() <= 2000
+        && data.optionC is string && data.optionC.size() <= 2000
+        && data.optionD is string && data.optionD.size() <= 2000
+        && data.optionE is string && data.optionE.size() <= 2000
+        && data.correctAnswer is string && (data.correctAnswer == 'A' || data.correctAnswer == 'B' || data.correctAnswer == 'C' || data.correctAnswer == 'D' || data.correctAnswer == 'E')
+        && data.explanation is string && data.explanation.size() <= 10000
+        && data.createdAt is string;
+    }
+
+    function isValidResult(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.userName is string && data.userName.size() <= 256
+        && data.score is number
+        && data.correctCount is int
+        && data.wrongCount is int
+        && data.percentage is number
+        && data.isPassed is bool
+        && data.answers is map
+        && data.flagged is list
+        && data.completedAt is string;
+    }
+
+    function isValidKisiKisi(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.category is string && data.category.size() <= 128
+        && data.title is string && data.title.size() <= 512
+        && data.content is string && data.content.size() <= 20000
+        && data.createdAt is string;
+    }
+
+    function isValidAnnouncement(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 512
+        && data.content is string && data.content.size() <= 20000
+        && data.createdAt is string;
+    }
+
+    // --- USERS COLLECTION ---
+    match /users/{userId} {
+      allow get, list: if true;
+      allow create, update: if isValidUser(incoming());
+      allow delete: if true;
+    }
+
+    // --- QUESTIONS COLLECTION ---
+    match /questions/{questionId} {
+      allow get, list: if true;
+      allow create, update: if isValidQuestion(incoming());
+      allow delete: if true;
+    }
+
+    // --- RESULTS COLLECTION ---
+    match /results/{resultId} {
+      allow get, list: if true;
+      allow create: if isValidResult(incoming());
+      allow update: if isValidResult(incoming());
+      allow delete: if true;
+    }
+
+    // --- KISIKISI COLLECTION ---
+    match /kisiKisi/{kisiId} {
+      allow get, list: if true;
+      allow create, update: if isValidKisiKisi(incoming());
+      allow delete: if true;
+    }
+
+    // --- ANNOUNCEMENTS COLLECTION ---
+    match /announcements/{annId} {
+      allow get, list: if true;
+      allow create, update: if isValidAnnouncement(incoming());
+      allow delete: if true;
+    }
+  }
+}

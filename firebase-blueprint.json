@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profiles for admins and participants",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique user ID" },
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "description": "Email address" },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "User privilege role" },
+        "status": { "type": "string", "enum": ["active", "inactive"], "description": "Account status" },
+        "password": { "type": "string", "description": "Simple admin-defined baseline password" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["id", "name", "email", "role", "status", "password", "createdAt"]
+    },
+    "Question": {
+      "title": "Question",
+      "description": "Exam questions for the CBT bank",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique question ID" },
+        "category": { "type": "string", "description": "Materi category e.g. Keperawatan Anak, Jiwa, Kritis" },
+        "question": { "type": "string", "description": "The question body text" },
+        "optionA": { "type": "string", "description": "Option A text" },
+        "optionB": { "type": "string", "description": "Option B text" },
+        "optionC": { "type": "string", "description": "Option C text" },
+        "optionD": { "type": "string", "description": "Option D text" },
+        "optionE": { "type": "string", "description": "Option E text" },
+        "correctAnswer": { "type": "string", "enum": ["A", "B", "C", "D", "E"], "description": "Kunci jawaban" },
+        "explanation": { "type": "string", "description": "Pembahasan / solution explanation" },
+        "imageUrl": { "type": "string", "description": "Optional illustration image URL" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "category", "question", "optionA", "optionB", "optionC", "optionD", "optionE", "correctAnswer", "explanation", "createdAt"]
+    },
+    "ExamResult": {
+      "title": "ExamResult",
+      "description": "Result records for exams taken by participants",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique result ID" },
+        "userId": { "type": "string", "description": "Participant ID" },
+        "userName": { "type": "string", "description": "Full name of participant" },
+        "score": { "type": "number", "description": "Score value between 0 and 100" },
+        "correctCount": { "type": "integer", "description": "Total correct answers" },
+        "wrongCount": { "type": "integer", "description": "Total wrong or unanswered questions" },
+        "percentage": { "type": "number", "description": "Success rate percentage" },
+        "isPassed": { "type": "boolean", "description": "Status whether the score passes D3 UKOM standard" },
+        "answers": { "type": "object", "description": "Key-value pair of questionId mapping to inputted choice" },
+        "flagged": { "type": "array", "description": "Array of questionIds marked as doubtful (ragu-ragu)" },
+        "completedAt": { "type": "string", "format": "date-time", "description": "Completed timestamp" }
+      },
+      "required": ["id", "userId", "userName", "score", "correctCount", "wrongCount", "percentage", "isPassed", "answers", "flagged", "completedAt"]
+    },
+    "KisiKisi": {
+      "title": "KisiKisi",
+      "description": "National CBT curriculum competencies and guidelines",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string", "description": "Materi category e.g. Keperawatan Medikal Bedah" },
+        "title": { "type": "string", "description": "Competency guideline title" },
+        "content": { "type": "string", "description": "The textual syllabus or notes" },
+        "fileUrl": { "type": "string", "description": "Optional PDF syllabus url" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "category", "title", "content", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Broadcasts, updates, and CBT schedules",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "bannerUrl": { "type": "string", "description": "URL of banner background image" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Participant and admin registrations"
+    },
+    "/questions/{questionId}": {
+      "schema": "Question",
+      "description": "Central CBT Question Bank pool"
+    },
+    "/results/{resultId}": {
+      "schema": "ExamResult",
+      "description": "Participant Tryout submission logs and rankings"
+    },
+    "/kisiKisi/{kisiId}": {
+      "schema": "KisiKisi",
+      "description": "Competency curriculum syllabi"
+    },
+    "/announcements/{annId}": {
+      "schema": "Announcement",
+      "description": "Public notices and news updates"
+    }
+  }
+}
